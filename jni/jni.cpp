@@ -9,6 +9,8 @@
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/select.h>
+#include <sys/time.h>
 
 #include "api/backup.hpp"
 
@@ -98,21 +100,30 @@ static void write_byte(int id, int value)
     Backup_write(id >> 16, id, &b);
 }
 
-/* An abstract unix socket as a "only one watcher" lock: no files, and it disappears when the watcher dies. */
+/*
+ * An abstract unix socket is both the "only one watcher" lock and the stop channel: the running watcher holds it
+ * bound and listening, a second bind fails, and connecting and sending 'q' tells the watcher to exit. No files, and
+ * the name disappears when the watcher dies.
+ */
+static socklen_t lock_addr(struct sockaddr_un *a)
+{
+    memset(a, 0, sizeof(*a));
+    a->sun_family = AF_UNIX;
+    memcpy(a->sun_path + 1, WATCH_LOCK, sizeof(WATCH_LOCK) - 1);  /* sun_path[0] = 0 -> abstract name */
+    return (socklen_t) (offsetof(struct sockaddr_un, sun_path) + 1 + sizeof(WATCH_LOCK) - 1);
+}
+
 static int grab_lock()
 {
     int fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) return -1;
     struct sockaddr_un a;
-    memset(&a, 0, sizeof(a));
-    a.sun_family = AF_UNIX;
-    memcpy(a.sun_path + 1, WATCH_LOCK, sizeof(WATCH_LOCK) - 1);  /* sun_path[0] = 0 -> abstract name */
-    socklen_t len = (socklen_t) (offsetof(struct sockaddr_un, sun_path) + 1 + sizeof(WATCH_LOCK) - 1);
+    socklen_t len = lock_addr(&a);
     if (bind(fd, (struct sockaddr *) &a, len) < 0) { close(fd); return -2; }
     return fd;
 }
 
-static void watch_loop()
+static void watch_loop(int lock)
 {
     int last = read_byte(TRIG_ID);
     for (;;) {
@@ -121,7 +132,21 @@ static void watch_loop()
             if (last >= 0 && cur != last) write_byte(DISP_ID, cur == 0x01 ? 0x01 : 0x02);
             last = cur;
         }
-        usleep(250000);
+        /* wait 250 ms, or less if someone connects to the stop channel */
+        fd_set rd;
+        FD_ZERO(&rd);
+        FD_SET(lock, &rd);
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 250000;
+        if (select(lock + 1, &rd, NULL, NULL, &tv) > 0) {
+            int c = accept(lock, NULL, NULL);
+            if (c >= 0) {
+                char cmd = 0;
+                if (read(c, &cmd, 1) == 1 && cmd == 'q') { close(c); close(lock); _exit(0); }
+                close(c);
+            }
+        }
     }
 }
 
@@ -131,6 +156,7 @@ extern "C" JNIEXPORT jint Java_com_artec_evftoggle_NativeBackup_startWatcher(JNI
     int lock = grab_lock();
     if (lock == -2) return 1;
     if (lock < 0) return -1;
+    if (listen(lock, 1) < 0) { close(lock); return -3; }
 
     pid_t pid = fork();
     if (pid < 0) { close(lock); return -2; }
@@ -141,13 +167,32 @@ extern "C" JNIEXPORT jint Java_com_artec_evftoggle_NativeBackup_startWatcher(JNI
         signal(SIGTERM, SIG_IGN);
         pid_t pid2 = fork();
         if (pid2 != 0) _exit(0);
-        watch_loop();
+        watch_loop(lock);
         _exit(0);
     }
     close(lock);                        /* the watcher keeps its own copy of the lock */
     int status;
     waitpid(pid, &status, 0);
     return 0;
+}
+
+/* ask a running watcher to exit: 0 = stopped (or was not running), negative = it did not stop */
+extern "C" JNIEXPORT jint Java_com_artec_evftoggle_NativeBackup_stopWatcher(JNIEnv *env, jclass clazz)
+{
+    int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (fd < 0) return -1;
+    struct sockaddr_un a;
+    socklen_t len = lock_addr(&a);
+    if (connect(fd, (struct sockaddr *) &a, len) < 0) { close(fd); return 0; }   /* nobody listening */
+    char q = 'q';
+    if (write(fd, &q, 1) != 1) { close(fd); return -2; }
+    close(fd);
+    for (int i = 0; i < 20; i++) {                    /* up to 2 s for the name to disappear */
+        int lock = grab_lock();
+        if (lock >= 0) { close(lock); return 0; }
+        usleep(100000);
+    }
+    return -3;
 }
 
 /* 1 if a watcher holds the lock */

@@ -12,53 +12,73 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * Opening the app sets the custom button to Deactivate Monitor and starts a background watcher. From then on, every
- * press of that button switches between Viewfinder and Monitor, until the camera is turned off. The app shows the
- * result for a moment and closes itself; any key closes it sooner. Errors stay on screen until a key is pressed.
+ * Opening the app starts the button watcher, or, if it is already running, offers to stop it.
+ *
+ *  - not running: set C1 to Deactivate Monitor, start the watcher, show ON, close after a moment
+ *  - running:     show RUNNING; centre button stops it (shows OFF), any other button closes
+ *
+ * Errors stay on screen until a key is pressed.
  */
 public class MainActivity extends Activity {
     private static final long SHOW_MS = 2500;
+    /** long enough to read the screen and reach the centre button */
+    private static final long RUNNING_SHOW_MS = 8000;
     private static final long IGNORE_KEYS_MS = 500;
+    /** Sony scan code of the centre button (com.sony.scalar.sysutil.ScalarInput, as in Recipe Lab) */
+    private static final int SCAN_CENTRE = 232;
+
+    private static final int STATE_BUSY = 0, STATE_RUNNING = 1, STATE_DONE = 2;
 
     private final Handler handler = new Handler();
     private final Runnable close = new Runnable() { public void run() { finish(); } };
     private TextView title, detail;
     private long startedAt;
-    private boolean done;
+    private boolean handled;
+    private int state = STATE_BUSY;
+    private static final int NO_KEY = Integer.MIN_VALUE;
+    private int downScan = NO_KEY;
 
     @Override
     protected void onCreate(Bundle saved) {
         super.onCreate(saved);
         buildUi();
         startedAt = SystemClock.uptimeMillis();
-        done = saved != null && saved.getBoolean("done", false);
+        handled = saved != null && saved.getBoolean("handled", false);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        out.putBoolean("done", done);
+        out.putBoolean("handled", handled);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (done) { handler.postDelayed(close, SHOW_MS); return; }
-        done = true;
+        if (handled) { closeIn(SHOW_MS); return; }
+        handled = true;
         try {
+            if (NativeBackup.watcherRunning()) {
+                showRunning();
+                return;
+            }
             if (NativeBackup.readByte(Display.KEY_FUNCTION_ID) != Display.KEY_DEACTIVATE_MONITOR) {
                 NativeBackup.writeByte(Display.KEY_FUNCTION_ID, Display.KEY_DEACTIVATE_MONITOR);
                 NativeBackup.sync();
             }
             int r = NativeBackup.startWatcher();
-            if (r < 0) { showError("Could not start the button watcher (code " + r + ")."); return; }
-            title.setText(r == 1 ? "ALREADY ON" : "BUTTON READY");
-            detail.setText("Press C1 to switch viewfinder / monitor.\nWorks until the camera is turned off.");
-            handler.postDelayed(close, SHOW_MS);
+            if (r == 1) { showRunning(); return; }               // started by someone else a moment ago
+            if (r < 0) { showError("COULD NOT START", "The button watcher did not start (code " + r + ")."); return; }
+            state = STATE_DONE;
+            title.setText("ON");
+            detail.setText("Press C1 to switch viewfinder / monitor.\n"
+                    + "Keeps running through power off and on.\n"
+                    + "Open this app again to turn it off.");
+            closeIn(SHOW_MS);
         } catch (NativeException e) {
-            showError(String.valueOf(e.getMessage()));
+            showError("COULD NOT START", String.valueOf(e.getMessage()));
         } catch (Throwable t) {
-            showError(String.valueOf(t));
+            showError("COULD NOT START", String.valueOf(t));
         }
     }
 
@@ -68,8 +88,33 @@ public class MainActivity extends Activity {
         handler.removeCallbacks(close);
     }
 
-    private void showError(String msg) {
-        title.setText("COULD NOT START");
+    private void closeIn(long ms) {
+        handler.removeCallbacks(close);
+        handler.postDelayed(close, ms);
+    }
+
+    private void showRunning() {
+        state = STATE_RUNNING;
+        title.setText("RUNNING");
+        detail.setText("C1 switches viewfinder / monitor.\n\n"
+                + "Centre button: turn it off\n"
+                + "Any other button: leave it on");
+        closeIn(RUNNING_SHOW_MS);
+    }
+
+    private void stop() {
+        state = STATE_DONE;
+        int r = NativeBackup.stopWatcher();
+        if (r < 0) { showError("COULD NOT STOP", "The button watcher did not stop (code " + r + ")."); return; }
+        title.setText("OFF");
+        detail.setText("C1 no longer switches displays.\nOpen this app again to turn it back on.");
+        closeIn(SHOW_MS);
+    }
+
+    private void showError(String head, String msg) {
+        state = STATE_DONE;
+        handler.removeCallbacks(close);
+        title.setText(head);
         title.setTextColor(Color.rgb(255, 120, 90));
         detail.setText(msg + "\n\nPress any button to close.");
     }
@@ -84,7 +129,7 @@ public class MainActivity extends Activity {
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextColor(Color.WHITE);
         title.setGravity(Gravity.CENTER);
-        title.setText("STARTING...");
+        title.setText("...");
         detail = new TextView(this);
         detail.setTextSize(15);
         detail.setTextColor(Color.rgb(170, 170, 170));
@@ -95,9 +140,25 @@ public class MainActivity extends Activity {
         setContentView(root);
     }
 
+    private static boolean isCentre(KeyEvent e) {
+        return e.getScanCode() == SCAN_CENTRE || e.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER
+                || e.getKeyCode() == KeyEvent.KEYCODE_ENTER;
+    }
+
+    /**
+     * Act on a key's release, but only for a key whose press also happened in this app. The centre press that
+     * launched the app from the Application List is released here too, and must not count as "turn it off".
+     */
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
-        if (e.getAction() == KeyEvent.ACTION_UP && SystemClock.uptimeMillis() - startedAt > IGNORE_KEYS_MS) finish();
+        if (e.getAction() == KeyEvent.ACTION_DOWN) {
+            if (e.getRepeatCount() == 0 && SystemClock.uptimeMillis() - startedAt > IGNORE_KEYS_MS) downScan = e.getScanCode();
+            return true;
+        }
+        if (e.getAction() != KeyEvent.ACTION_UP || downScan != e.getScanCode()) return true;
+        downScan = NO_KEY;
+        if (state == STATE_RUNNING && isCentre(e)) stop();
+        else if (state != STATE_BUSY) finish();
         return true;
     }
 }

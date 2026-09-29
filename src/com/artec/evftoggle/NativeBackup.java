@@ -11,6 +11,8 @@ public class NativeBackup {
     /** start the background button watcher: 0 = started, 1 = already running, negative = failed */
     public static native int startWatcher();
     public static native boolean watcherRunning();
+    /** ask the running watcher to exit: 0 = stopped or was not running, negative = it did not stop */
+    public static native int stopWatcher();
 
     public static int readByte(int id) throws NativeException {
         byte[] b = read(id);

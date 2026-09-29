@@ -2,7 +2,7 @@
   <img src="dist/icon-512.png" width="96" alt="EVF Toggle icon">
 </p>
 
-<h1 align="center">EVFToggle</h1>
+<h1 align="center">EVF Toggle</h1>
 
 <p align="center">
   Switch between the viewfinder and the rear screen with one button on the <b>Sony A6000</b>.<br>
@@ -39,7 +39,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
+> **Honest note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
 > In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
 > [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
@@ -101,13 +101,16 @@ key, and the camera won't install over a different key.
 
 ## Using it
 
-Open **EVF Toggle** from the Application List. It shows one of these for a few seconds and closes:
+Open **EVF Toggle** from the Application List. What you see depends on whether it's already running:
 
-| screen | meaning |
-| --- | --- |
-| **BUTTON READY** | the watcher is running. Press C1 |
-| **ALREADY ON** | it was still running from before. Nothing changed; C1 still works |
-| **COULD NOT START** | something failed. The line underneath says what. Press any button to close |
+| screen | meaning | buttons |
+| --- | --- | --- |
+| **ON** | it wasn't running, now it is. Press C1 | closes by itself, or press any button |
+| **RUNNING** | it was already running | **centre** turns it off; any other button leaves it on |
+| **OFF** | you just turned it off. C1 is back to plain Deactivate Monitor | closes by itself |
+| **COULD NOT START** / **COULD NOT STOP** | something failed. The line underneath says what | any button closes |
+
+So the app works like a switch: open it to turn switching on, open it again and press centre to turn it off.
 
 Then press **C1**:
 
@@ -125,8 +128,8 @@ flip the switch. It goes into a deep sleep and wakes up where it left off, watch
 **Taking the battery out does stop it.** That's a real shutdown, and the watcher is gone. After a battery swap, open
 the app once more.
 
-If you're not sure whether it's running, just open the app. **ALREADY ON** means it was, **BUTTON READY** means it
-wasn't and now is.
+If you're not sure whether it's running, just open the app. **RUNNING** means it was, **ON** means it wasn't and now
+is.
 
 I've only seen this on my own camera, so treat it as "seems to", not a promise.
 
@@ -138,12 +141,13 @@ Two settings, both ones you could set by hand:
   `Custom Key Settings`, the switching stops.
 - **FINDER/MONITOR** is set to Viewfinder or Monitor on each press.
 
-No firmware is touched and nothing is unlocked. The watcher lives in memory only; taking the battery out removes it
-completely.
+No firmware is touched and nothing is unlocked. The watcher lives in memory only. Turning it off in the app, or taking
+the battery out, removes it completely.
 
 ## Uninstalling
 
-**Removing the app:** `MENU → Application → Application Management → Manage and Remove → EVF Toggle`.
+**Removing the app:** turn it off first (open it, press centre on **RUNNING**). Then
+`MENU → Application → Application Management → Manage and Remove → EVF Toggle`.
 
 Removing the app doesn't change the two settings back. To do that:
 
@@ -156,9 +160,9 @@ Removing the app doesn't change the two settings back. To do that:
 | --- | --- |
 | `No devices found` when installing | USB Connection must be *Mass Storage*; camera on and showing *USB Mode*; try another cable or port |
 | Install refused | Old version still on the camera. Remove it first |
-| **BUTTON READY**, but C1 does nothing | Check C1 is still *Deactivate Monitor*. If it is, the watcher probably didn't survive the app closing. Please open an issue |
+| **ON**, but C1 does nothing | Check C1 is still *Deactivate Monitor*. If it is, the watcher probably didn't survive the app closing. Please open an issue |
 | C1 turns the screen black but the viewfinder stays off | Same as above: the watcher isn't running. Open the app again |
-| **COULD NOT START** | Send a photo of the screen in an issue |
+| **COULD NOT START** or **COULD NOT STOP** | Send a photo of the screen in an issue. To stop it anyway, take the battery out |
 | Stopped working after a battery swap | Expected. Open the app once more |
 | Stopped working after a normal power-off | Not what I've seen, but possible. Open the app again, and open an issue if it keeps happening |
 
@@ -175,7 +179,8 @@ The app uses three settings from the camera's settings store:
 When you open the app, it sets C1 to *Deactivate Monitor* and starts a small native process. That process reads
 `0x01070b09` four times a second. When it changes, the process writes `0x010708e0`: Viewfinder if the monitor was
 just deactivated, Monitor if it came back on. The process detaches from the app so it can outlive it. It also holds
-an abstract socket as a lock, so opening the app twice doesn't start two copies.
+an abstract socket as a lock, so opening the app twice doesn't start two copies. The same socket is the off switch:
+the app connects to it and sends `q`, and the watcher exits.
 
 This began as a shell script (`evf1.sh`) run over telnet with `bk.elf`. The IDs were found by dumping
 `/setting/Backup.bin` before and after changing things in the menu, and by scanning `0x01070000` to `0x01070dff`
