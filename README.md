@@ -39,7 +39,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **Honest note.** Camera apps can't start themselves at power-on, so you open EVF Toggle once per session. It
+> **note.** Camera apps can't start themselves at power-on, so you open EVF Toggle once per session. It
 > takes about three seconds. And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
 
