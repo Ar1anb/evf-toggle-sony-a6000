@@ -39,7 +39,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
+> **Honest note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
 > In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
 > [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
@@ -79,8 +79,8 @@ its [releases page](https://github.com/ma1co/Sony-PMCA-RE/releases). There's not
 **2. Download the app:** [`EVFToggle.apk`](https://github.com/Ar1anb/evf-toggle/releases/latest/download/EVFToggle.apk). That link always gives you the
 newest version. Older ones are on the [releases page](https://github.com/Ar1anb/evf-toggle/releases).
 
-**3. Prepare the camera.** In the menu, `Setup → USB Connection → Mass Storage`. Turn the camera on and plug it in.
-The screen should say *USB Mode*.
+**3. Prepare the camera.** In the menu, `Setup → USB Connection`, pick **MTP** or **Mass Storage**. Both work with
+the installer; I use MTP. Turn the camera on and plug it in. The screen should say *USB Mode*.
 
 **4. Install.**
 
@@ -158,7 +158,7 @@ Removing the app doesn't change the two settings back. To do that:
 
 | what you see | what to do |
 | --- | --- |
-| `No devices found` when installing | USB Connection must be *Mass Storage*; camera on and showing *USB Mode*; try another cable or port |
+| `No devices found` when installing | Camera on and showing *USB Mode*. Try the other USB Connection setting (MTP or Mass Storage), another cable or another port |
 | Install refused | Old version still on the camera. Remove it first |
 | **ON**, but C1 does nothing | Check C1 is still *Deactivate Monitor*. If it is, the watcher probably didn't survive the app closing. Please open an issue |
 | C1 turns the screen black but the viewfinder stays off | Same as above: the watcher isn't running. Open the app again |
