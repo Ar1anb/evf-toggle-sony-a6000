@@ -1,14 +1,13 @@
 # EVF Toggle
 
-A tiny app for the Sony a6000. **Open it, and the camera switches between the viewfinder and the rear screen.**
-It shows which one is now on for a moment, then closes by itself. Press any button to close it sooner.
+A tiny app for the Sony a6000 that makes the **C1 button switch between the viewfinder and the rear screen**.
 
-- Viewfinder → Monitor
-- Monitor → Viewfinder
-- Anything else (for example, if it was on Auto) → Viewfinder
+**Open the app once after turning the camera on.** It sets C1 to "Deactivate Monitor", starts a small watcher in
+the background, shows **BUTTON READY**, and closes. From then on every C1 press flips Viewfinder / Monitor,
+exactly like the old `evf1.sh` script, until the camera is turned off. After the next power-on, open the app again.
 
-It changes one camera setting (`0x010708e0`: 01 = Viewfinder, 02 = Monitor), the same one your shell script wrote.
-Nothing keeps running after the app closes, so there is nothing to lose when you turn the camera off.
+It watches setting `0x01070b09` (changes on each C1 press) and writes `0x010708e0` (01 = Viewfinder,
+02 = Monitor). No putty, no bk.elf, nothing in /tmp.
 
 ## Getting the .apk (easiest way: GitHub builds it for you)
 
@@ -45,8 +44,8 @@ Every build from GitHub is signed with a new throwaway key, so to install a newe
 
 ## Using it
 
-Open **EVF Toggle** from the Application List. It switches, shows e.g. `MONITOR — was VIEWFINDER`, and closes after
-1.5 seconds. If it shows **COULD NOT SWITCH**, the message says why; press any button to close.
+Open **EVF Toggle** from the Application List. It shows **BUTTON READY** (or **ALREADY ON** if you opened it before
+since power-on) and closes. Then press C1. If it shows **COULD NOT START**, the message says why.
 
 Tip: on the a6000 you can put the Application List on a custom key or the Fn menu, which makes this quicker.
 
@@ -54,11 +53,9 @@ Tip: on the a6000 you can put the Application List on a custom key or the Fn men
 
 A green build only proves the app was put together correctly. It can't prove the camera behaves as expected.
 
-1. Open the app on the rear screen → the picture should move to the viewfinder.
-2. Open it again → back to the rear screen.
-3. Leave it on one of them, **turn the camera off and on** → it should still be on that one.
-4. With FINDER/MONITOR on **Auto** in the menu, open the app → it goes to Viewfinder. Check whether the eye sensor
-   is now off (expected: the setting is no longer Auto) and tell me what you see.
+1. Open the app → **BUTTON READY**. Press C1 → the picture moves to the viewfinder. Press again → back.
+2. Open the app a second time → it should say **ALREADY ON**, and C1 should still switch once per press.
+3. Turn the camera off and on → C1 no longer switches until you open the app again (expected).
 
 ## Undo
 
