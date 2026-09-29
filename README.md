@@ -1,79 +1,107 @@
 # EVF Toggle
 
-A tiny app for the Sony a6000 that makes the **C1 button switch between the viewfinder and the rear screen**.
+A small app for the Sony a6000 that lets the C1 button switch between the viewfinder and the rear screen.
 
-**Open the app once after turning the camera on.** It sets C1 to "Deactivate Monitor", starts a small watcher in
-the background, shows **BUTTON READY**, and closes. From then on every C1 press flips Viewfinder / Monitor,
-exactly like the old `evf1.sh` script, until the camera is turned off. After the next power-on, open the app again.
+The a6300 can put "Finder/Monitor" on a custom button. The a6000 can't; the option isn't in its firmware. The
+setting behind it is, though. This app watches for a C1 press and flips that setting for you.
 
-It watches setting `0x01070b09` (changes on each C1 press) and writes `0x010708e0` (01 = Viewfinder,
-02 = Monitor). No putty, no bk.elf, nothing in /tmp.
+## What it does
 
-## Getting the .apk (easiest way: GitHub builds it for you)
+You open the app once after switching the camera on. It shows BUTTON READY for a couple of seconds and closes.
+After that, every C1 press moves the picture to the other display. It keeps working until you turn the camera off.
+Next time you turn it on, open the app again.
 
-You don't need to install any Android tools on your PC for this.
+## Install
 
-1. Make a free account at github.com if you don't have one.
-2. Click **+** (top right) → **New repository**. Name it `evf-toggle`, set it to **Private**, click **Create repository**.
-3. On the next page, click **uploading an existing file**.
-4. Unzip `evf-toggle.zip` on your PC. Open the `evf-toggle` folder, select **everything inside it**, and drag it onto the
-   GitHub page. Click **Commit changes**.
-   - Make sure the `.github` folder is included:
-     it contains the build instructions. If GitHub didn't take it, see "If the Actions tab is empty" below.
-5. Click the **Actions** tab. A build called **build** starts on its own. Wait for the green tick (about 3–5 minutes).
-6. Click the finished build, scroll down to **Artifacts**, and click **EVFToggle**. You get a zip; inside it is
-   `EVFToggle.apk`. Put that file in `C:\Users\Arcti\OneDrive\Desktop\sonyupdate`.
+You need the camera, a USB cable, a charged battery, and either `pmca-gui` or `pmca-console` from
+[Sony-PMCA-RE](https://github.com/ma1co/Sony-PMCA-RE).
 
-**If the Actions tab is empty:** drag-and-drop sometimes skips folders that start with a dot. In the repository, click
-**Add file → Create new file**, type the name `.github/workflows/build.yml`, paste the contents of that file from the
-zip, and click **Commit changes**. The build then starts.
-
-## Installing it on the camera
-
-1. Camera: charged battery, connected by USB, USB Connection set to **Mass Storage** (MENU → Setup → USB Connection).
-2. In PowerShell, in the `sonyupdate` folder:
+1. Download `EVFToggle.apk` (from the Actions tab of this repo, under Artifacts, or build it yourself).
+2. On the camera, set MENU > Setup > USB Connection to Mass Storage and plug it in.
+3. Install it. With pmca-gui, use the Install tab and pick the apk. With pmca-console:
 
    ```
-   .\pmca-console-v0.18-win.exe install -f EVFToggle.apk
+   pmca-console install -f EVFToggle.apk
    ```
 
-3. On the camera: **MENU → Application → Application List → EVF Toggle.**
+4. Unplug. The app is under MENU > Application > Application List.
 
-Every build from GitHub is signed with a new throwaway key, so to install a newer build over an old one you must
-**uninstall the old one first** (MENU → Application → Application List → Application Management → Delete).
+If an older build is already on the camera, uninstall it first (Application List > Application Management >
+Uninstall). Builds from GitHub are signed with a new key each time, and the camera won't install over a different
+key.
 
 ## Using it
 
-Open **EVF Toggle** from the Application List. It shows **BUTTON READY** (or **ALREADY ON** if you opened it before
-since power-on) and closes. Then press C1. If it shows **COULD NOT START**, the message says why.
+Open EVF Toggle from the Application List. You'll see one of these:
 
-Tip: on the a6000 you can put the Application List on a custom key or the Fn menu, which makes this quicker.
+- BUTTON READY: the watcher started. Press C1.
+- ALREADY ON: you already opened it since power-on. C1 works; nothing changed.
+- COULD NOT START: something failed. The line underneath says what. It stays up until you press a button.
 
-## What needs testing on the camera
+The app sets C1 to "Deactivate Monitor" for you, since that's the function it listens to. If you reassign C1 in
+the menu, the switching stops until you open the app again.
 
-A green build only proves the app was put together correctly. It can't prove the camera behaves as expected.
+## Limits
 
-1. Open the app → **BUTTON READY**. Press C1 → the picture moves to the viewfinder. Press again → back.
-2. Open the app a second time → it should say **ALREADY ON**, and C1 should still switch once per press.
-3. Turn the camera off and on → C1 no longer switches until you open the app again (expected).
+- You have to open the app after every power-on. Camera apps can't start by themselves at boot.
+- It switches between Viewfinder and Monitor only. If FINDER/MONITOR was on Auto, the first press takes you off
+  Auto. To get Auto back, set it in MENU > Setup > FINDER/MONITOR.
+- It checks C1 four times a second, so there's a short delay (up to a quarter second) after a press.
+- Only tested on an a6000 with firmware 3.21. Other bodies use different setting IDs and probably won't work.
 
-## Undo
+## Status
 
-- Delete the app: MENU → Application → Application List → Application Management → Delete.
-- Back to automatic switching: MENU → Setup → FINDER/MONITOR → Auto.
+It builds and installs. The part I haven't confirmed yet is whether the watcher survives the app closing. If C1
+does nothing once you're back in shooting mode, that's probably why. Open an issue and say what you saw.
 
-## For developers
+## How it works
 
-- `src/com/artec/evftoggle/`: `MainActivity` (screen + toggle), `Display` (toggle logic, no Android imports, unit
-  tested), `NativeBackup` (JNI binding).
-- `jni/jni.cpp`: settings-store read/write/sync via OpenMemories-Platform's backup driver.
-- `./tools/test.sh`: unit tests (plain JDK 17).
-- `./build.sh` (Linux/CI) or `build.cmd` (Windows): needs JDK 17, Android SDK build-tools 30.0.3 + platform 28,
-  NDK **r16b**, and git. The first build downloads OpenMemories-Platform into `jni/platform`.
-- APKs are signed v1 only; the camera rejects v2/v3.
+The app uses three settings from the camera's settings store:
+
+| ID | What it is | Values |
+| --- | --- | --- |
+| `0x01070c71` | C1 function | `0x34` = Deactivate Monitor |
+| `0x01070b09` | Monitor deactivated | `01` = off, `00` = on. Flips on every C1 press |
+| `0x010708e0` | Active display | `01` = Viewfinder, `02` = Monitor. Takes effect at once |
+
+When you open the app, it sets C1 to Deactivate Monitor and starts a small native process. That process reads
+`0x01070b09` every 250 ms. When it changes, the process writes `0x010708e0`: Viewfinder if the monitor was just
+deactivated, Monitor if it came back on. The process detaches from the app so it can outlive it, and it holds an
+abstract socket as a lock so a second launch doesn't start a second copy.
+
+This started as a shell script (`evf1.sh`) run over telnet with `bk.elf`. The IDs were found by dumping
+`/setting/Backup.bin` before and after changing things in the menu, and by scanning `0x01070000` to `0x01070dff`
+live on the camera before and after a button press.
+
+A side note from that digging: the a6000 firmware still has the full ND filter menu, even though the camera has no
+ND filter. Setting C1 to `0x40` opens it.
+
+## Building
+
+GitHub can build it for you. Push the repo (or upload the files through the website) and the workflow in
+`.github/workflows/build.yml` builds the apk. Download it from the run's Artifacts section.
+
+To build locally you need JDK 17, the Android SDK (build-tools 30.0.3, platform 28), NDK r16b and git. Newer NDKs
+can't target this camera.
+
+```
+ANDROID_NDK=/path/to/android-ndk-r16b ./build.sh     # Linux, WSL, macOS
+build.cmd                                            # Windows
+```
+
+The first build clones [OpenMemories-Platform](https://github.com/ma1co/OpenMemories-Platform) into `jni/platform`.
+`./tools/test.sh` runs the unit tests with a plain JDK.
+
+The apk is signed with v1 only. The camera rejects v2 and v3 signatures.
+
+## Uninstall
+
+Application List > Application Management > Uninstall > EVF Toggle. To put C1 back, use MENU > Custom Key
+Settings. To go back to automatic switching, MENU > Setup > FINDER/MONITOR > Auto.
 
 ## Credits
 
-Built on the structure of [Recipe Lab](https://github.com/voxivoid/recipe-lab-sony-pmca) (MIT, © André Domingues;
-see `NOTICE-RecipeLab-LICENSE.txt`) and [OpenMemories-Platform](https://github.com/ma1co/OpenMemories-Platform)
-(MIT, © ma1co).
+The project layout, build scripts and settings-store code come from
+[Recipe Lab](https://github.com/voxivoid/recipe-lab-sony-pmca) by André Domingues (MIT, see
+`NOTICE-RecipeLab-LICENSE.txt`). The native driver code is [OpenMemories-Platform](https://github.com/ma1co/OpenMemories-Platform)
+by ma1co (MIT). Sideloading apps onto these cameras at all is possible because of ma1co's Sony-PMCA-RE.
