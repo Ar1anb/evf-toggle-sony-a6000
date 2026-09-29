@@ -28,6 +28,7 @@
 - [How it works](#how-it-works)
 - [For developers](#for-developers)
 - [Credits](#credits)
+- [Special thanks](#special-thanks)
 
 ---
 
@@ -39,7 +40,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
+> **Honest note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
 > In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
 > [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
@@ -229,3 +230,9 @@ scripts and settings-store code started as a copy of it, and this README follows
 - [OpenMemories-Tweak](https://github.com/ma1co/OpenMemories-Tweak): telnet access, which is how the IDs were found.
 
 Recipe Lab: MIT, © 2026 André Domingues. OpenMemories-Platform: MIT, © 2017 ma1co.
+
+## Special thanks
+
+Thanks to [André Domingues](https://github.com/voxivoid) (voxivoid). This app is built on top of his
+[Recipe Lab](https://github.com/voxivoid/recipe-lab-sony-pmca): the build scripts, the settings code and the README
+layout all came from there.
