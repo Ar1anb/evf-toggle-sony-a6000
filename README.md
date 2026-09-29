@@ -33,14 +33,15 @@
 
 ## What it is
 
-EVF Toggle is a small app that runs on the Sony A6000 itself. Open it once after you turn the camera on, and from
+EVF Toggle is a small app that runs on the Sony A6000 itself. Open it once, and from
 then on every press of **C1** moves the picture between the viewfinder and the rear screen.
 
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **note.** Camera apps can't start themselves at power-on, so you open EVF Toggle once per session. It
-> takes about three seconds. And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
+> **Honest note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
+> In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
+> [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
 
 ## Why I made this
@@ -105,7 +106,7 @@ Open **EVF Toggle** from the Application List. It shows one of these for a few s
 | screen | meaning |
 | --- | --- |
 | **BUTTON READY** | the watcher is running. Press C1 |
-| **ALREADY ON** | you already opened it since power-on. Nothing changed; C1 still works |
+| **ALREADY ON** | it was still running from before. Nothing changed; C1 still works |
 | **COULD NOT START** | something failed. The line underneath says what. Press any button to close |
 
 Then press **C1**:
@@ -115,7 +116,19 @@ Then press **C1**:
 | first | picture moves to the viewfinder |
 | second | back to the rear screen |
 
-It keeps working until you turn the camera off. Next time you turn it on, open the app again.
+### How long it lasts
+
+Longer than I expected. Turning the camera off with the power switch doesn't stop it: I've switched off and on many
+times and C1 kept working, without opening the app again. My guess is that the A6000 doesn't fully shut down when you
+flip the switch. It goes into a deep sleep and wakes up where it left off, watcher included.
+
+**Taking the battery out does stop it.** That's a real shutdown, and the watcher is gone. After a battery swap, open
+the app once more.
+
+If you're not sure whether it's running, just open the app. **ALREADY ON** means it was, **BUTTON READY** means it
+wasn't and now is.
+
+I've only seen this on my own camera, so treat it as "seems to", not a promise.
 
 ## What it changes
 
@@ -125,7 +138,8 @@ Two settings, both ones you could set by hand:
   `Custom Key Settings`, the switching stops.
 - **FINDER/MONITOR** is set to Viewfinder or Monitor on each press.
 
-No firmware is touched and nothing is unlocked. Nothing runs after you turn the camera off.
+No firmware is touched and nothing is unlocked. The watcher lives in memory only; taking the battery out removes it
+completely.
 
 ## Uninstalling
 
@@ -145,7 +159,8 @@ Removing the app doesn't change the two settings back. To do that:
 | **BUTTON READY**, but C1 does nothing | Check C1 is still *Deactivate Monitor*. If it is, the watcher probably didn't survive the app closing. Please open an issue |
 | C1 turns the screen black but the viewfinder stays off | Same as above: the watcher isn't running. Open the app again |
 | **COULD NOT START** | Send a photo of the screen in an issue |
-| Stopped working after power-off | Expected. Open the app once per session |
+| Stopped working after a battery swap | Expected. Open the app once more |
+| Stopped working after a normal power-off | Not what I've seen, but possible. Open the app again, and open an issue if it keeps happening |
 
 ## How it works
 
