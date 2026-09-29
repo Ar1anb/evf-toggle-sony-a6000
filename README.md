@@ -7,7 +7,7 @@
 <p align="center">
   Switch between the viewfinder and the rear screen with one button on the <b>Sony A6000</b>.<br>
   <sub>
-    <a href="../../actions">Download the app</a> ·
+    <a href="https://github.com/Ar1anb/evf-toggle/releases/latest/download/EVFToggle.apk">Download the app</a> ·
     <a href="#installing">Install it</a> ·
     <a href="#how-it-works">How it works</a>
   </sub>
@@ -39,7 +39,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
+> **Honest note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
 > In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
 > [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
@@ -76,8 +76,8 @@ About ten minutes, once. You need the camera, a USB cable, a charged battery and
 **1. Get the installer tool.** It's called *Sony-PMCA-RE*, by ma1co. Download `pmca-gui` (or `pmca-console`) from
 its [releases page](https://github.com/ma1co/Sony-PMCA-RE/releases). There's nothing to install; just run it.
 
-**2. Get the app.** Open the [Actions tab](../../actions), click the newest green run, scroll to *Artifacts* and
-download **EVFToggle**. You get a zip. `EVFToggle.apk` is inside it.
+**2. Download the app:** [`EVFToggle.apk`](https://github.com/Ar1anb/evf-toggle/releases/latest/download/EVFToggle.apk). That link always gives you the
+newest version. Older ones are on the [releases page](https://github.com/Ar1anb/evf-toggle/releases).
 
 **3. Prepare the camera.** In the menu, `Setup → USB Connection → Mass Storage`. Turn the camera on and plug it in.
 The screen should say *USB Mode*.
@@ -96,8 +96,8 @@ prints `Task completed successfully` when it's done.
 
 **5. Unplug.** The app is under `MENU → Application → Application List → EVF Toggle`.
 
-Updating? Remove the old version first (see [Uninstalling](#uninstalling)). Every GitHub build is signed with a new
-key, and the camera won't install over a different key.
+Updating? Turn it off and remove the old version first (see [Uninstalling](#uninstalling)). The camera won't
+install a new version over an old one that was signed with a different key, and removing it first avoids that.
 
 ## Using it
 
@@ -198,7 +198,8 @@ has no ND filter. Set C1 to `0x40` and it opens.
 | `tools/test.sh` | unit tests, plain JDK 17, no Android SDK |
 | `.github/workflows/build.yml` | builds the apk on every push |
 
-**Building on GitHub:** push, wait for the green tick, download from *Artifacts*.
+**Building on GitHub:** push, wait for the green tick, download from *Artifacts*. To publish, create a release and
+attach the apk named exactly `EVFToggle.apk`, so the download link above keeps working.
 
 **Building locally:** JDK 17, Android SDK (build-tools 30.0.3, platform 28), NDK **r16b** and git. Newer NDKs can't
 target this camera.
