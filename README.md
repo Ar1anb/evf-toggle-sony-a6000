@@ -1,12 +1,13 @@
 <p align="center">
-  <img src="dist/icon-512.png" width="96" alt="EVF Toggle icon">
+  <img src="dist/icon-512.png" width="96" alt="EVFToggle icon">
 </p>
 
-<h1 align="center">EVF Toggle</h1>
+<h1 align="center">EVFToggle</h1>
 
 <p align="center">
   Switch between the viewfinder and the rear screen with one button on the <b>Sony A6000</b>.<br>
   <sub>
+    <a href="https://github.com/Ar1anb/evf-toggle/releases/latest/download/EVFToggle.apk">Download the app</a> ·
     <a href="#installing">Install it</a> ·
     <a href="#how-it-works">How it works</a>
   </sub>
@@ -39,7 +40,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **note.** Camera apps can't start themselves, so you open EVF Toggle once. It takes about three seconds.
+> **Honest note.** Camera apps can't start themselves, so you open EVFToggle once. It takes about three seconds.
 > In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
 > [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
@@ -94,14 +95,14 @@ the installer; I use MTP. Turn the camera on and plug it in. The screen should s
 The camera flickers and switches modes by itself for about a minute. Leave it alone and watch the computer, which
 prints `Task completed successfully` when it's done.
 
-**5. Unplug.** The app is under `MENU → Application → Application List → EVF Toggle`.
+**5. Unplug.** The app is under `MENU → Application → Application List → EVFToggle`.
 
 Updating? Turn it off and remove the old version first (see [Uninstalling](#uninstalling)). The camera won't
 install a new version over an old one that was signed with a different key, and removing it first avoids that.
 
 ## Using it
 
-Open **EVF Toggle** from the Application List. What you see depends on whether it's already running:
+Open **EVFToggle** from the Application List. What you see depends on whether it's already running:
 
 | screen | meaning | buttons |
 | --- | --- | --- |
@@ -147,7 +148,7 @@ the battery out, removes it completely.
 ## Uninstalling
 
 **Removing the app:** turn it off first (open it, press centre on **RUNNING**). Then
-`MENU → Application → Application Management → Manage and Remove → EVF Toggle`.
+`MENU → Application → Application Management → Manage and Remove → EVFToggle`.
 
 Removing the app doesn't change the two settings back. To do that:
 
