@@ -18,6 +18,7 @@
 **Contents**
 
 - [What it is](#what-it-is)
+- [Why I made this](#why-i-made-this)
 - [Compatibility](#compatibility)
 - [Installing](#installing)
 - [Using it](#using-it)
@@ -41,6 +42,18 @@ setting underneath it is there, though, and this app flips it for you whenever y
 > **Honest note.** Camera apps can't start themselves at power-on, so you open EVF Toggle once per session. It
 > takes about three seconds. And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
+
+## Why I made this
+
+I hate switching displays on the A6000. Doing it by hand means `MENU → Setup → FINDER/MONITOR`, scrolling to the
+right option and backing out again, every single time. That's fine once a day. It's not fine when I'm moving between
+shooting at eye level and holding the camera low.
+
+Auto mode is supposed to fix that, and I hate it too. The eye sensor sits right under the viewfinder, so my hand, my
+shirt or the camera strap flips it to the viewfinder when I don't want it. The rear screen goes black in the middle of
+framing a shot, and I end up pulling the camera away from my body to get it back.
+
+So now C1 does it. One press, and it goes where I tell it to.
 
 ## Compatibility
 
