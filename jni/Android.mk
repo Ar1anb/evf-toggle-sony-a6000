@@ -4,14 +4,15 @@ MODE = ANDROID
 PLATFORMDIR = platform
 include $(LOCAL_PATH)/$(PLATFORMDIR)/vars.mk
 
-# Compile stub shared libraries which are needed to link libevftoggle.so. These
-# files are already present on the camera.
+# Stub shared libraries needed to link libevftoggle.so. The real ones are already on the camera.
+# Newer OpenMemories-Platform keeps these stubs as assembly in stubs/<lib>.S; older versions had
+# drivers/<lib>.c. Take whichever exists.
 $(foreach lib, $(LIBS), \
     $(eval include $(CLEAR_VARS)) \
     $(eval LOCAL_MODULE := $(lib)) \
-    $(eval LOCAL_SRC_FILES := $(wildcard $(addprefix $(LOCAL_PATH)/$(PLATFORMDIR)/$(DRIVERDIR)/$(lib), .c .cpp))) \
-    $(eval LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(PLATFORMDIR)) \
-    $(eval LOCAL_CFLAGS += $(DEFS) $(WFLAGS) -std=c11) \
+    $(eval LOCAL_SRC_FILES := $(wildcard $(addprefix $(LOCAL_PATH)/$(PLATFORMDIR)/$(DRIVERDIR)/$(lib), .c .cpp)) $(wildcard $(LOCAL_PATH)/$(PLATFORMDIR)/$(STUBSDIR)/$(lib).S)) \
+    $(eval LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(PLATFORMDIR) $(LOCAL_PATH)/$(PLATFORMDIR)/$(STUBSDIR)) \
+    $(eval LOCAL_CONLYFLAGS += -std=c11) \
     $(eval LOCAL_LDFLAGS += $(LFLAGS)) \
     $(eval include $(BUILD_SHARED_LIBRARY)) \
 )
@@ -28,4 +29,3 @@ LOCAL_LDFLAGS += -Wl,--gc-sections -Wl,--exclude-libs,ALL -Wl,--no-undefined
 LOCAL_LDLIBS := -lgcc
 LOCAL_SHARED_LIBRARIES := $(LIBS)
 include $(BUILD_SHARED_LIBRARY)
-
