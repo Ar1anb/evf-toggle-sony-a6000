@@ -33,7 +33,7 @@
 
 ## What it is
 
-EVF Toggle is a small app that runs on the Sony A6000 itself. Open it once, and from
+EVFToggle is a small app that runs on the Sony A6000 itself. Open it once, and from
 then on every press of **C1** moves the picture between the viewfinder and the rear screen.
 
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
