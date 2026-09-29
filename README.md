@@ -2,7 +2,7 @@
   <img src="dist/icon-512.png" width="96" alt="EVF Toggle icon">
 </p>
 
-<h1 align="center">EVF Toggle</h1>
+<h1 align="center">EVFToggle</h1>
 
 <p align="center">
   Switch between the viewfinder and the rear screen with one button on the <b>Sony A6000</b>.<br>
