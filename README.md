@@ -62,13 +62,17 @@ So now C1 does it. One press, and it goes where I tell it to.
 Built for and tested on one camera. Other bodies keep their settings under different IDs, so don't expect it to work
 on them.
 
-✅ tested · ❔ untested · ❌ won't work
+✅ tested · ❔ untested · ❌ not needed or won't work
 
 | camera | model code | status | comment |
 | --- | --- | --- | --- |
 | **A6000** | ILCE-6000 | ✅ | firmware 3.21 |
-| A6300 | ILCE-6300 | ❌ | not needed: Finder/Monitor is already a custom key option |
-| A5000, A5100, A6500 | | ❔ | IDs probably differ |
+| A7, A7R, A7S | ILCE-7, ILCE-7R, ILCE-7S | ❔ | same problem: no *Finder/Monitor Sel.* on custom keys. Runs camera apps, but IDs probably differ |
+| A7 II | ILCE-7M2 | ❔ | reports conflict; may depend on firmware version |
+| NEX-6, NEX-7 | NEX-6, NEX-7 | ❔ | probably the same problem, unconfirmed |
+| A6300, A6500 | ILCE-6300, ILCE-6500 | ❌ | not needed: *Finder/Monitor Sel.* is already a custom key option |
+| A7R II, A7S II and later | ILCE-7RM2, ILCE-7SM2, … | ❌ | not needed: *Finder/Monitor Sel.* is already a custom key option |
+| A5000, A5100 | ILCE-5000, ILCE-5100 | ❌ | no viewfinder, nothing to switch to |
 
 ## Installing
 
