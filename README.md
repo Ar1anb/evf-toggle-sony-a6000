@@ -40,7 +40,7 @@ then on every press of **C1** moves the picture between the viewfinder and the r
 The A6300 lets you put *Finder/Monitor* on a custom button. The A6000 doesn't; that option isn't in its menu. The
 setting underneath it is there, though, and this app flips it for you whenever you press C1.
 
-> **Honest note.** Camera apps can't start themselves, so you open EVFToggle once. It takes about three seconds.
+> **note.** Camera apps can't start themselves, so you open EVFToggle once. It takes about three seconds.
 > In my testing it then keeps working through normal power off and on, but taking the battery out stops it. See
 > [How long it lasts](#how-long-it-lasts). And it only knows Viewfinder and Monitor: if FINDER/MONITOR was on *Auto*, the first
 > C1 press takes you off Auto.
