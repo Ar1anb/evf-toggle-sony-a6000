@@ -7,7 +7,6 @@
 <p align="center">
   Switch between the viewfinder and the rear screen with one button on the <b>Sony A6000</b>.<br>
   <sub>
-    <a href="https://github.com/Ar1anb/evf-toggle/releases/latest/download/EVFToggle.apk">Download the app</a> ·
     <a href="#installing">Install it</a> ·
     <a href="#how-it-works">How it works</a>
   </sub>
